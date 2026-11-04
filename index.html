@@ -147,7 +147,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t
 
 /* โครงเอกสาร ใช้ร่วมกันระหว่าง Word และ PDF */
 function blocks(){const f=S.f,c=S.cr,w=+c.w||0,b=[],H=(t,s)=>b.push({h:t,s}),P=t=>b.push({p:t||''}),T=(r,wd,ct)=>b.push({t:r,w:wd,ct});
- b.push({h:'แผนการจัดการเรียนการสอนของรายวิชา (มคอ.3)',c:1});{const tn=S.tch.map(t=>t.n).filter(z=>z&&z.trim());if(tn.length)P('อาจารย์ผู้สอน: '+tn.join(', '))}
+ b.push({h:'แผนการจัดการเรียนการสอนของรายวิชา (มคอ.3)',c:1});
  H('หมวดที่ 5 แผนการสอนและการประเมินผล');H('5.1 แผนการสอน',1);
  const rows=[['สัปดาห์ที่','วันที่สอน','หัวข้อ/รายละเอียด','จำนวนชั่วโมงสอน','กิจกรรมการเรียนการสอน/สื่อที่ใช้','ผู้สอน']];let n=0;
  flat().forEach(x=>{const EX=t=>[{t,cs:6,al:1,b:1,fill:S.col.ef,color:S.col.et},{x:1},{x:1},{x:1},{x:1},{x:1}];if(x.t=='mid')return rows.push(EX('สอบกลางภาค วันที่ '+rng(S.mid1,S.mid2)));if(x.t=='fin')return rows.push(EX('สอบปลายภาค วันที่ '+rng(S.fin1,S.fin2)));
