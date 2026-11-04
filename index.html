@@ -28,7 +28,8 @@ button.s{background:transparent;color:var(--ac)}button.x{padding:2px 8px;backgro
 tr.hol td{background:var(--wn)}tr.ex td{background:var(--ac2);font-weight:600}
 .chip{display:inline-block;border:1px solid var(--bd);border-radius:14px;padding:2px 10px;margin:2px 4px 2px 0;font-size:14px}
 .dd summary{cursor:pointer;border:1px solid var(--bd);border-radius:6px;padding:4px 8px;background:var(--bg);margin-bottom:4px;list-style:none}.dd summary::after{content:' ▾'}.dd[open]{margin-bottom:6px}
-#plan{table-layout:fixed;min-width:900px}.hint{font-size:13px;color:var(--mu)}.tot{text-align:right;font-weight:600;margin-top:8px}
+#plan{table-layout:fixed;min-width:900px}.rc{border:1px solid var(--bd);border-radius:8px;padding:8px;margin-top:6px;background:var(--card)}.rch{display:flex;gap:6px;align-items:center;justify-content:space-between;margin-bottom:6px}.rcg{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;font-size:13px}.rcg button{padding:5px 0;background:var(--bg);color:var(--tx);border:1px solid var(--bd)}.rcg button.in{background:var(--ac2)}.rcg button.on{background:var(--ac);color:#fff}
+.hint{font-size:13px;color:var(--mu)}.tot{text-align:right;font-weight:600;margin-top:8px}
 #pv{display:none}
 @media print{#pv{font-family:'TH SarabunPSK','Sarabun',sans-serif}body::before,header,main{display:none!important}#pv{display:block;color:#000;background:#fff;font-size:14pt}#pv table{min-width:0;border-collapse:collapse;width:100%}#pv td,#pv th{-webkit-print-color-adjust:exact;print-color-adjust:exact;border:1px solid #000;font-size:12pt;padding:1px 4px}#pv p{margin:0}@page{size:A4;margin:2cm}}
 </style></head><body>
@@ -46,7 +47,7 @@ const fr=(a,b)=>a.getDate()+(a.getMonth()==b.getMonth()?'':' '+TM[a.getMonth()])
 const GR='A|ดีเยี่ยม|80 ขึ้นไป\nB+|ดีมาก|75-79.99\nB|ดี|70-74.99\nC+|ค่อนข้างดี|65-69.99\nC|พอใช้|60-64.99\nD+|อ่อน|55-59.99\nD|อ่อนมาก|50-54.99\nF|ไม่ผ่าน|0-49.99';
 const DEF=()=>({f:{phil:'“การจัดการศึกษาแบบบูรณาการศาสตร์ เพื่อการเรียนรู้ตลอดชีวิต การสร้างสรรค์นวัตกรรมและการส่งเสริมภูมิปัญญาท้องถิ่นสู่สากล”',prereq:'ไม่มี',coreq:'ไม่มี',grade:GR},
 cr:{t:6,l:0,p:12,s:6,w:15},clo:[{c:'',m:'',a:''}],plo:[{p:'',d:'',c:''}],ass:[{c:'',m:'',w:'',r:''}],
-ses:[{d:1,t1:'13:00',t2:'16:00',room:'',h:''},{d:4,t1:'09:00',t2:'16:00',room:'',h:''}],
+ses:[{d:1,t1:'09:00',t2:'16:00',room:'',h:'',sp:''},{d:4,t1:'09:00',t2:'16:00',room:'',h:'',sp:''}],
 start:'',mid1:'',mid2:'',fin1:'',fin2:'',hc:[],hx:[],rows:{},tch:[{id:1,n:''}],col:{ht:'#000000',hf:'#fff2cc',et:'#000000',ef:'#ddebf7'},cw:[7,13,43,7,15,15]});
 let S=DEF();
 try{const x=localStorage.getItem('tqf3');if(x){const o=JSON.parse(x);S=Object.assign(DEF(),o);S.f=Object.assign(DEF().f,o.f)}}catch(e){}
@@ -97,11 +98,12 @@ const F=(k,l,t)=>`<label>${l}${t?`<textarea data-k="${k}"></textarea>`:`<input d
 const TE=(n,cols,labs)=>`<div class="sc"><table><tr>${labs.map(l=>`<th>${l}</th>`).join('')}<th></th></tr>${S[n].map((r,i)=>`<tr>${cols.map(c=>`<td><textarea data-t="${n}" data-i="${i}" data-f="${c}">${esc(r[c])}</textarea></td>`).join('')}<td><button class="x" data-a="del" data-n="${n}" data-i="${i}">ลบ</button></td></tr>`).join('')}</table></div><p><button class="s" data-a="add" data-n="${n}">+ เพิ่มแถว</button></p>`;
 function ui(){const c=S.cr;
  document.getElementById('app').innerHTML=`
-<section><h2>อาจารย์ผู้รับผิดชอบรายวิชาและอาจารย์ผู้สอน</h2>${F('resp','อาจารย์ผู้รับผิดชอบรายวิชา')}<p><b>อาจารย์ผู้สอน</b> <span class="hint">เพิ่มได้หลายคน รายชื่อจะไปปรากฏเป็นตัวเลือกในช่องผู้สอนของตารางแผนการสอน</span></p>${S.tch.map((r,i)=>`<div style="display:flex;gap:6px;margin-bottom:6px"><input data-t="tch" data-i="${i}" data-f="n" data-g value="${esc(r.n)}" placeholder="ชื่อ-สกุล อาจารย์ผู้สอน" style="margin:0"><button class="x" data-a="del" data-n="tch" data-i="${i}">ลบ</button></div>`).join('')}<button class="s" data-a="add" data-n="tch">+ เพิ่มอาจารย์ผู้สอน</button></section>
+<section><h2>อาจารย์ผู้สอน</h2><p><b>อาจารย์ผู้สอน</b> <span class="hint">เพิ่มได้หลายคน รายชื่อจะไปปรากฏเป็นตัวเลือกในช่องผู้สอนของตารางแผนการสอน</span></p>${S.tch.map((r,i)=>`<div style="display:flex;gap:6px;margin-bottom:6px"><input data-t="tch" data-i="${i}" data-f="n" data-g value="${esc(r.n)}" placeholder="ชื่อ-สกุล อาจารย์ผู้สอน" style="margin:0"><button class="x" data-a="del" data-n="tch" data-i="${i}">ลบ</button></div>`).join('')}<button class="s" data-a="add" data-n="tch">+ เพิ่มอาจารย์ผู้สอน</button></section>
 <section><h2>ตั้งค่าตารางสอน และจำนวนชั่วโมง</h2>
 <div class="g"><label>หน่วยกิตรวม<input type="number" data-c="t" data-g value="${c.t}"></label><label>บรรยาย (ชม./สัปดาห์)<input type="number" data-c="l" data-g value="${c.l}"></label><label>ปฏิบัติ (ชม./สัปดาห์)<input type="number" data-c="p" data-g value="${c.p}"></label><label>ศึกษาด้วยตนเอง (ชม./สัปดาห์)<input type="number" data-c="s" data-g value="${c.s}"></label><label>จำนวนสัปดาห์ต่อภาค<input type="number" data-c="w" data-g value="${c.w}"></label></div>
 <p id="hrs" class="hint"></p>
-<div class="g"><label>วันเริ่มเรียนสัปดาห์แรก<input type="date" data-d="start" data-g value="${S.start}"></label><label>สอบกลางภาค เริ่ม<input type="date" data-d="mid1" data-g value="${S.mid1}"></label><label>สอบกลางภาค สิ้นสุด<input type="date" data-d="mid2" data-g value="${S.mid2}"></label><label>สอบปลายภาค เริ่ม<input type="date" data-d="fin1" data-g value="${S.fin1}"></label><label>สอบปลายภาค สิ้นสุด<input type="date" data-d="fin2" data-g value="${S.fin2}"></label></div>
+<div class="g"><label>วันเริ่มเรียนสัปดาห์แรก<input type="date" data-d="start" data-g value="${S.start}"></label></div>
+<div class="g" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))"><div style="margin-bottom:10px"><div class="hint">สอบกลางภาค</div><button class="s" style="width:100%;text-align:left" data-a="rco" data-k="mid">${rng(S.mid1,S.mid2)||'เลือกช่วงวันที่'}</button><div id="rc-mid"></div></div><div style="margin-bottom:10px"><div class="hint">สอบปลายภาค</div><button class="s" style="width:100%;text-align:left" data-a="rco" data-k="fin">${rng(S.fin1,S.fin2)||'เลือกช่วงวันที่'}</button><div id="rc-fin"></div></div></div>
 <p><b>สีแถววันหยุดและแถวสอบ</b> <span class="hint">ใช้ทั้งในหน้านี้ ไฟล์ Word และ PDF</span></p>
 <div class="g">${[['ht','วันหยุด สีตัวอักษร'],['hf','วันหยุด สีช่องตาราง'],['et','สอบ สีตัวอักษร'],['ef','สอบ สีช่องตาราง']].map(a=>`<label>${a[1]}<input type="color" data-col="${a[0]}" data-g value="${S.col[a[0]]}" style="height:38px;padding:2px"></label>`).join('')}</div>
 <p><b>วันและเวลาเรียน</b> <span class="hint">เพิ่มได้หลายครั้งต่อสัปดาห์ ชั่วโมงเว้นว่างไว้ ระบบหารจากหน่วยกิตบรรยายและปฏิบัติให้</span></p>
@@ -112,7 +114,7 @@ function ui(){const c=S.cr;
 <section><h2>หมวดที่ 5 แผนการสอนและการประเมินผล</h2><h2 style="font-size:15px">5.1 แผนการสอน</h2><p class="hint">ทำตัวหนาบางข้อความ: เลือกข้อความในช่อง แล้วกดปุ่ม B ด้านบนหรือ Ctrl+B ข้อความจะมีเครื่องหมาย ** ครอบ และเป็นตัวหนาในไฟล์ Word และ PDF กดซ้ำเพื่อยกเลิก</p><p class="hint">ปรับความกว้างคอลัมน์ (ใช้กับไฟล์ Word ด้วย)</p><div class="g">${['สัปดาห์','วันที่สอน','หัวข้อ/รายละเอียด','ชั่วโมง','กิจกรรม/สื่อ','ผู้สอน'].map((n,i)=>`<label>${n} <b>${S.cw[i]}</b><input type="range" min="4" max="60" data-w="${i}" data-g value="${S.cw[i]}" style="padding:0"></label>`).join('')}</div><div class="sc"><table id="plan"></table></div>
 </section>`;
  document.querySelectorAll('[data-k]').forEach(e=>e.value=S.f[e.dataset.k]||'');
- plan();hl();calc()}
+ plan();hl();calc();if(typeof rcDraw=='function')rcDraw()}
 function calc(){const c=S.cr,w=+c.w||0,e=document.getElementById('hrs');if(e)e.textContent=`หน่วยกิต ${c.t}(${c.l}-${c.p}-${c.s})  บรรยาย ${c.l*w} ชม./ภาค  ปฏิบัติ ${c.p*w} ชม./ภาค  ศึกษาด้วยตนเอง ${c.s*w} ชม./ภาค  ชั่วโมงสอนต่อสัปดาห์ ${perWeek()}`;
  const p=document.getElementById('pct');if(p){const n=S.ass.reduce((a,r)=>a+(parseFloat(r.r)||0),0);p.textContent='รวม '+n+'%'}}
 function hl(){const e=document.getElementById('hl');if(!e)return;e.innerHTML=S.hc.map((h,i)=>`<span class="chip">${fd(pd(h.d))} ${esc(h.n)} <a href="#" data-a="rmh" data-i="${i}">ลบ</a></span>`).join('')+S.hx.map((h,i)=>`<span class="chip">ยกเลิกหยุด ${fd(pd(h))} <a href="#" data-a="rsh" data-i="${i}">คืนวันหยุด</a></span>`).join('')}
@@ -134,8 +136,8 @@ document.addEventListener('input',e=>{const t=e.target,d=t.dataset;if(!d)return;
  else if(d.ins){const v=rd(d.ins),id=+d.id,a=Array.isArray(v.ins)?v.ins.slice():[];v.ins=t.checked?[...new Set(a.concat(id))]:a.filter(z=>z!==id);const sm=t.closest('details').querySelector('summary');sm.textContent=insNames(v).join(', ')||'เลือกผู้สอน'}
  else if(d.t){S[d.t][d.i][d.f]=t.type=='checkbox'?t.checked:t.value}else if(d.r){rd(d.r)[d.f]=t.value;if(d.f=='h')tot()}
  save();calc();if(d.g!==undefined&&!d.r){plan()}});
-document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;e.preventDefault();const d=t.dataset,a=d.a;
- if(a=='add'){S[d.n].push(d.n=='tch'?{id:Math.max(0,...S.tch.map(t=>t.id))+1,n:''}:d.n=='ses'?{d:1,t1:'09:00',t2:'12:00',room:'',h:'',sp:''}:d.n=='clo'?{c:'',m:'',a:''}:d.n=='plo'?{p:'',d:'',c:''}:{c:'',m:'',w:'',r:''})}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;e.preventDefault();const d=t.dataset,a=d.a;if(a[0]=='r'&&a[1]=='c'){rcAct(a,d);return}
+ if(a=='add'){S[d.n].push(d.n=='tch'?{id:Math.max(0,...S.tch.map(t=>t.id))+1,n:''}:d.n=='ses'?{d:1,t1:'09:00',t2:'16:00',room:'',h:'',sp:''}:d.n=='clo'?{c:'',m:'',a:''}:d.n=='plo'?{p:'',d:'',c:''}:{c:'',m:'',w:'',r:''})}
  else if(a=='del'){S[d.n].splice(+d.i,1)}
  else if(a=='addh'){const dv=document.getElementById('hd').value;if(!dv)return;S.hc.push({d:dv,n:document.getElementById('hn').value||'วันหยุดพิเศษ'})}
  else if(a=='rmh')S.hc.splice(+d.i,1);else if(a=='rsh')S.hx.splice(+d.i,1);
@@ -145,7 +147,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t
 
 /* โครงเอกสาร ใช้ร่วมกันระหว่าง Word และ PDF */
 function blocks(){const f=S.f,c=S.cr,w=+c.w||0,b=[],H=(t,s)=>b.push({h:t,s}),P=t=>b.push({p:t||''}),T=(r,wd,ct)=>b.push({t:r,w:wd,ct});
- b.push({h:'แผนการจัดการเรียนการสอนของรายวิชา (มคอ.3)',c:1});{const tn=S.tch.map(t=>t.n).filter(z=>z&&z.trim());if(S.f.resp)P('อาจารย์ผู้รับผิดชอบรายวิชา: '+S.f.resp);if(tn.length)P('อาจารย์ผู้สอน: '+tn.join(', '))}
+ b.push({h:'แผนการจัดการเรียนการสอนของรายวิชา (มคอ.3)',c:1});{const tn=S.tch.map(t=>t.n).filter(z=>z&&z.trim());if(tn.length)P('อาจารย์ผู้สอน: '+tn.join(', '))}
  H('หมวดที่ 5 แผนการสอนและการประเมินผล');H('5.1 แผนการสอน',1);
  const rows=[['สัปดาห์ที่','วันที่สอน','หัวข้อ/รายละเอียด','จำนวนชั่วโมงสอน','กิจกรรมการเรียนการสอน/สื่อที่ใช้','ผู้สอน']];let n=0;
  flat().forEach(x=>{const EX=t=>[{t,cs:6,al:1,b:1,fill:S.col.ef,color:S.col.et},{x:1},{x:1},{x:1},{x:1},{x:1}];if(x.t=='mid')return rows.push(EX('สอบกลางภาค วันที่ '+rng(S.mid1,S.mid2)));if(x.t=='fin')return rows.push(EX('สอบปลายภาค วันที่ '+rng(S.fin1,S.fin2)));
@@ -183,6 +185,21 @@ function bold(){const t=document.activeElement;if(!t||t.tagName!='TEXTAREA'||!t.
  t.value=nv;t.setSelectionRange(s0,s1);t.dispatchEvent(new Event('input',{bubbles:true}))}
 document.getElementById('bB').onmousedown=e=>e.preventDefault();document.getElementById('bB').onclick=bold;
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()=='b'&&document.activeElement.dataset&&document.activeElement.dataset.r){e.preventDefault();bold()}});
+const MF=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+let RC=null;
+function rcDraw(){document.querySelectorAll('[id^=rc-]').forEach(e=>e.innerHTML='');if(!RC)return;
+ const lo=RC.step==1?RC.a:(S[RC.key+'1']||''),hi=RC.step==1?RC.a:(S[RC.key+'2']||'');
+ const f=new Date(RC.y,RC.m,1).getDay(),n=new Date(RC.y,RC.m+1,0).getDate();let c='';
+ for(let q=0;q<f;q++)c+='<span></span>';
+ for(let q=1;q<=n;q++){const dk=kd(new Date(RC.y,RC.m,q)),on=dk==lo||dk==hi,inn=lo&&dk>=lo&&dk<=hi;c+=`<button class="${on?'on':inn?'in':''}" data-a="rcd" data-d="${dk}">${q}</button>`}
+ document.getElementById('rc-'+RC.key).innerHTML=`<div class="rc"><div class="rch"><button class="x" data-a="rcp">‹</button><b>${MF[RC.m]} ${RC.y+543}</b><button class="x" data-a="rcn">›</button><button class="x" data-a="rcx">ปิด</button></div><div class="rcg">${TD.map(x=>`<b>${x.replace('.','')}</b>`).join('')}${c}</div><div class="hint" style="margin-top:6px">${RC.step==1?'เลือกวันสิ้นสุด (เดือนเดิม เลื่อนเดือนได้)':'เลือกวันเริ่มต้น'}</div></div>`}
+function rcAct(a,d){
+ if(a=='rco'){if(RC&&RC.key==d.k){RC=null;return rcDraw()}const s0=S[d.k+'1'],b=s0?pd(s0):(S.start?pd(S.start):new Date());RC={key:d.k,y:b.getFullYear(),m:b.getMonth(),step:0,a:''};return rcDraw()}
+ if(!RC)return;
+ if(a=='rcp'||a=='rcn'){RC.m+=a=='rcn'?1:-1;if(RC.m<0){RC.m=11;RC.y--}if(RC.m>11){RC.m=0;RC.y++}return rcDraw()}
+ if(a=='rcx'){RC=null;return rcDraw()}
+ if(a=='rcd'){if(RC.step==0){RC.a=d.d;RC.step=1;return rcDraw()}
+  let x=RC.a,y=d.d;if(y<x)[x,y]=[y,x];S[RC.key+'1']=x;S[RC.key+'2']=y;const k=RC.key;RC=null;save();const sy=scrollY;ui();scrollTo(0,sy)}}
 const fit=e=>{e.style.height='auto';e.style.height=e.scrollHeight+'px'};
 const fitAll=()=>document.querySelectorAll('#plan textarea').forEach(fit);
 {const _p=plan;plan=function(){_p();fitAll()}}
