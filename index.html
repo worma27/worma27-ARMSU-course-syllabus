@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ระบบจัดทำ มคอ.3 (AUN-QA)</title>
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--tx:#1c1c1a;--mu:#6b6b66;--bd:#d9d7d0;--ac:#1d5c4a;--ac2:#e3efe9;--wn:#fff4e0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171716;--card:#222221;--tx:#ecebe6;--mu:#a09f98;--bd:#3a3a37;--ac:#6fc1a5;--ac2:#25352f;--wn:#3a3222}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 'Mitr','Noto Sans Thai',sans-serif}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+header h1{font-size:18px;margin:0 auto 0 0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--card);z-index:10}
+main{max-width:1100px;margin:0 auto;padding:16px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:16px}
+h2{font-size:17px;margin:0 0 12px;color:var(--ac)}
+label{display:block;font-size:14px;color:var(--mu);margin-bottom:10px}
+input,textarea,select{width:100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:6px 8px;margin-top:2px}
+textarea{min-height:64px;resize:vertical}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 12px}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{border:1px solid var(--bd);padding:4px;vertical-align:top;font-size:14px}th{background:var(--ac2);text-align:left}
+td textarea,td input{margin:0;min-height:0}td textarea{min-height:52px}
+button{font:inherit;cursor:pointer;border:1px solid var(--ac);background:var(--ac);color:#fff;border-radius:6px;padding:6px 12px}
+button.s{background:transparent;color:var(--ac)}button.x{padding:2px 8px;background:transparent;color:#b33;border-color:var(--bd)}
+tr.hol td{background:var(--wn)}tr.ex td{background:var(--ac2);font-weight:600}
+.chip{display:inline-block;border:1px solid var(--bd);border-radius:14px;padding:2px 10px;margin:2px 4px 2px 0;font-size:14px}
+#plan{table-layout:fixed;min-width:900px}.hint{font-size:13px;color:var(--mu)}.tot{text-align:right;font-weight:600;margin-top:8px}
+#pv{display:none}
+@media print{#pv{font-family:'TH SarabunPSK','Sarabun',sans-serif}body::before,header,main{display:none!important}#pv{display:block;color:#000;background:#fff;font-size:14pt}#pv table{min-width:0;border-collapse:collapse;width:100%}#pv td,#pv th{-webkit-print-color-adjust:exact;print-color-adjust:exact;border:1px solid #000;font-size:12pt;padding:1px 4px}#pv p{margin:0}@page{size:A4;margin:2cm}}
+</style></head><body>
+<header><h1>ระบบจัดทำ มคอ.3 (AUN-QA)</h1>
+<button class="s" id="bB" title="เลือกข้อความในตารางแล้วกด หรือใช้ Ctrl+B"><b>B</b> ตัวหนา</button><button class="s" id="bReset">ล้างข้อมูล</button><button class="s" id="bPdf">ส่งออก PDF</button><button id="bWord">ส่งออก Word</button></header>
+<main id="app"></main><div id="pv"></div>
+<script>
+const TD=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'],TM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pd=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const kd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const yy=d=>String((d.getFullYear()+543)%100).padStart(2,'0');
+const fd=d=>TD[d.getDay()]+' '+d.getDate()+' '+TM[d.getMonth()]+' '+yy(d);
+const fr=(a,b)=>a.getDate()+(a.getMonth()==b.getMonth()?'':' '+TM[a.getMonth()])+' - '+b.getDate()+' '+TM[b.getMonth()]+' '+yy(b);
+const GR='A|ดีเยี่ยม|80 ขึ้นไป\nB+|ดีมาก|75-79.99\nB|ดี|70-74.99\nC+|ค่อนข้างดี|65-69.99\nC|พอใช้|60-64.99\nD+|อ่อน|55-59.99\nD|อ่อนมาก|50-54.99\nF|ไม่ผ่าน|0-49.99';
+const DEF=()=>({f:{phil:'“การจัดการศึกษาแบบบูรณาการศาสตร์ เพื่อการเรียนรู้ตลอดชีวิต การสร้างสรรค์นวัตกรรมและการส่งเสริมภูมิปัญญาท้องถิ่นสู่สากล”',prereq:'ไม่มี',coreq:'ไม่มี',grade:GR},
+cr:{t:6,l:0,p:12,s:6,w:15},clo:[{c:'',m:'',a:''}],plo:[{p:'',d:'',c:''}],ass:[{c:'',m:'',w:'',r:''}],
+ses:[{d:1,t1:'13:00',t2:'16:00',room:'',h:''},{d:4,t1:'09:00',t2:'16:00',room:'',h:''}],
+start:'',mid1:'',mid2:'',fin1:'',fin2:'',hc:[],hx:[],rows:{},col:{ht:'#000000',hf:'#fff2cc',et:'#000000',ef:'#ddebf7'},cw:[7,13,43,7,15,15]});
+let S=DEF();
+try{const x=localStorage.getItem('tqf3');if(x){const o=JSON.parse(x);S=Object.assign(DEF(),o);S.f=Object.assign(DEF().f,o.f)}}catch(e){}
+const save=()=>{try{localStorage.setItem('tqf3',JSON.stringify(S))}catch(e){}};
+
+/* วันหยุดราชการ */
+const FX=[[1,1,'วันขึ้นปีใหม่'],[4,6,'วันจักรี'],[4,13,'วันสงกรานต์'],[4,14,'วันสงกรานต์'],[4,15,'วันสงกรานต์'],[5,1,'วันแรงงานแห่งชาติ'],[5,4,'วันฉัตรมงคล'],[6,3,'วันเฉลิมพระชนมพรรษาสมเด็จพระราชินี'],[7,28,'วันเฉลิมพระชนมพรรษา ร.10'],[8,12,'วันแม่แห่งชาติ'],[10,13,'วันคล้ายวันสวรรคต ร.9'],[10,23,'วันปิยมหาราช'],[12,5,'วันพ่อแห่งชาติ'],[12,31,'วันสิ้นปี'],[12,10,'วันรัฐธรรมนูญ']];
+const LU={2026:[['03-03','วันมาฆบูชา'],['05-31','วันวิสาขบูชา'],['07-29','วันอาสาฬหบูชา'],['07-30','วันเข้าพรรษา']],2027:[['02-21','วันมาฆบูชา'],['05-20','วันวิสาขบูชา'],['07-18','วันอาสาฬหบูชา'],['07-19','วันเข้าพรรษา']]};
+function holY(y,m){const L=FX.map(a=>[new Date(y,a[0]-1,a[1]),a[2]]).concat((LU[y]||[]).map(a=>[pd(y+'-'+a[0]),a[1]])).sort((a,b)=>a[0]-b[0]);
+ for(const[d0,n0]of L){let d=new Date(d0),n=n0;if(d.getDay()==0||d.getDay()==6){n='หยุดชดเชย'+n;d.setDate(d.getDate()+(d.getDay()==6?2:1));while(m[kd(d)])d.setDate(d.getDate()+1)}m[kd(d)]=n}}
+function allHol(){const m={};if(!S.start)return m;const a=pd(S.start).getFullYear(),b=(S.fin2?pd(S.fin2):pd(S.start)).getFullYear();
+ for(let y=a;y<=b+1;y++)holY(y,m);S.hx.forEach(x=>delete m[x]);S.hc.forEach(h=>m[h.d]=h.n);return m}
+
+/* ชั่วโมงและตารางสอน */
+const perWeek=()=>(+S.cr.l||0)+(+S.cr.p||0);
+const sh=s=>s.h!==''&&s.h!=null?+s.h:Math.round(perWeek()/(S.ses.length||1)*10)/10;
+function list(){const o=[];if(!S.start||!S.fin1)return o;const st=pd(S.start),en=pd(S.fin1),m1=S.mid1&&pd(S.mid1),m2=S.mid2&&pd(S.mid2),H=allHol();
+ let md=0,lw='',wk=0;
+ for(let d=new Date(st);d<en;d.setDate(d.getDate()+1)){
+  if(m1&&!md&&d>=m1){md=1;o.push({t:'mid'})}
+  if(m1&&m2&&d>=m1&&d<=m2)continue;
+  S.ses.forEach((s,i)=>{if(+s.d!==d.getDay())return;const mo=new Date(d);mo.setDate(d.getDate()-((d.getDay()+6)%7));const wkk=kd(mo);let w='';if(wkk!==lw){lw=wkk;w=++wk}
+   o.push({t:H[kd(d)]?'hol':'cls',d:new Date(d),k:kd(d)+'#'+i,w,s,n:H[kd(d)]})})}
+ o.push({t:'fin'});return o}
+const rng=(a,b)=>a&&b?fr(pd(a),pd(b)):'';
+const rd=k=>S.rows[k]||(S.rows[k]={});
+const tm=x=>{const[a,b]=x.split(':').map(Number);return a+b/60};
+const spl=s=>s.sp===''||s.sp==null?(s.t1<'12:00'&&s.t2>'13:00'):!!s.sp;
+const spr=r=>{const o=S.rows[r.k]&&S.rows[r.k].sp;return typeof o=='boolean'?o:spl(r.s)};
+function parts(r){return spr(r)?[{k:r.k+'m',lab:'เช้า'},{k:r.k+'a',lab:'บ่าย'}]:[{k:r.k,lab:''}]}
+const cg=()=>{const sm=S.cw.reduce((a,b)=>a+b,0)||1;return'<colgroup>'+S.cw.map(v=>`<col style="width:${(v/sm*91).toFixed(2)}%">`).join('')+'<col style="width:9%"></colgroup>'};
+const cwd=()=>{const sm=S.cw.reduce((a,b)=>a+b,0)||1,w=S.cw.map(v=>Math.round(v/sm*9638));w[2]+=9638-w.reduce((a,b)=>a+b,0);return w};
+const sty=(a,b)=>`background:${S.col[a]};color:${S.col[b]};text-align:center;font-weight:700;`;
+const hv=r=>{const v=S.rows[r.k];return v&&v.h!=null&&v.h!==''?+v.h:sh(r.s)};
+function flat(){const o=[];let g=null;
+ list().forEach(r=>{if(r.t=='mid'||r.t=='fin'){g=null;o.push({t:r.t});return}
+  let ng=false;if(r.w||!g){g={n:r.w,c:0};ng=true}
+  const ps=r.t=='hol'?[null]:parts(r);
+  ps.forEach((p,j)=>{o.push({t:r.t,r,p,j,np:ps.length,ws:ng&&j==0?g:null});g.c++})});return o}
+
+/* ส่วนติดต่อผู้ใช้ */
+const F=(k,l,t)=>`<label>${l}${t?`<textarea data-k="${k}"></textarea>`:`<input data-k="${k}">`}</label>`;
+const TE=(n,cols,labs)=>`<div class="sc"><table><tr>${labs.map(l=>`<th>${l}</th>`).join('')}<th></th></tr>${S[n].map((r,i)=>`<tr>${cols.map(c=>`<td><textarea data-t="${n}" data-i="${i}" data-f="${c}">${esc(r[c])}</textarea></td>`).join('')}<td><button class="x" data-a="del" data-n="${n}" data-i="${i}">ลบ</button></td></tr>`).join('')}</table></div><p><button class="s" data-a="add" data-n="${n}">+ เพิ่มแถว</button></p>`;
+function ui(){const c=S.cr;
+ document.getElementById('app').innerHTML=`
+<section><h2>ตั้งค่าตารางสอน และจำนวนชั่วโมง</h2>
+<div class="g"><label>หน่วยกิตรวม<input type="number" data-c="t" data-g value="${c.t}"></label><label>บรรยาย (ชม./สัปดาห์)<input type="number" data-c="l" data-g value="${c.l}"></label><label>ปฏิบัติ (ชม./สัปดาห์)<input type="number" data-c="p" data-g value="${c.p}"></label><label>ศึกษาด้วยตนเอง (ชม./สัปดาห์)<input type="number" data-c="s" data-g value="${c.s}"></label><label>จำนวนสัปดาห์ต่อภาค<input type="number" data-c="w" data-g value="${c.w}"></label></div>
+<p id="hrs" class="hint"></p>
+<div class="g"><label>วันเริ่มเรียนสัปดาห์แรก<input type="date" data-d="start" data-g value="${S.start}"></label><label>สอบกลางภาค เริ่ม<input type="date" data-d="mid1" data-g value="${S.mid1}"></label><label>สอบกลางภาค สิ้นสุด<input type="date" data-d="mid2" data-g value="${S.mid2}"></label><label>สอบปลายภาค เริ่ม<input type="date" data-d="fin1" data-g value="${S.fin1}"></label><label>สอบปลายภาค สิ้นสุด<input type="date" data-d="fin2" data-g value="${S.fin2}"></label></div>
+<p><b>สีแถววันหยุดและแถวสอบ</b> <span class="hint">ใช้ทั้งในหน้านี้ ไฟล์ Word และ PDF</span></p>
+<div class="g">${[['ht','วันหยุด สีตัวอักษร'],['hf','วันหยุด สีช่องตาราง'],['et','สอบ สีตัวอักษร'],['ef','สอบ สีช่องตาราง']].map(a=>`<label>${a[1]}<input type="color" data-col="${a[0]}" data-g value="${S.col[a[0]]}" style="height:38px;padding:2px"></label>`).join('')}</div>
+<p><b>วันและเวลาเรียน</b> <span class="hint">เพิ่มได้หลายครั้งต่อสัปดาห์ ชั่วโมงเว้นว่างไว้ ระบบหารจากหน่วยกิตบรรยายและปฏิบัติให้</span></p>
+<div class="sc"><table><tr><th>วัน</th><th>เริ่ม</th><th>สิ้นสุด</th><th>ห้อง</th><th>ชั่วโมงต่อครั้ง</th><th>แยกเช้า/บ่าย (ค่าเริ่มต้น)</th><th></th></tr>${S.ses.map((s,i)=>`<tr><td><select data-t="ses" data-i="${i}" data-f="d" data-g>${TD.map((n,j)=>`<option value="${j}"${+s.d==j?' selected':''}>${n}</option>`).join('')}</select></td><td><input type="time" data-t="ses" data-i="${i}" data-f="t1" data-g value="${s.t1}"></td><td><input type="time" data-t="ses" data-i="${i}" data-f="t2" data-g value="${s.t2}"></td><td><input data-t="ses" data-i="${i}" data-f="room" value="${esc(s.room)}"></td><td><input type="number" step="0.5" data-t="ses" data-i="${i}" data-f="h" data-g placeholder="${Math.round(perWeek()/(S.ses.length||1)*10)/10}" value="${esc(s.h)}"></td><td><input type="checkbox" data-t="ses" data-i="${i}" data-f="sp" data-g${spl(s)?' checked':''}></td><td><button class="x" data-a="del" data-n="ses" data-i="${i}">ลบ</button></td></tr>`).join('')}</table></div>
+<p><button class="s" data-a="add" data-n="ses">+ เพิ่มวันเรียน</button></p>
+<p><b>วันหยุดเพิ่มเติม / งดสอน</b> <span class="hint">วันหยุดราชการและวันชดเชยใส่ให้อัตโนมัติ (ข้อมูลวันพระ 2569-2570) ตรวจกับประกาศทางการอีกครั้ง</span></p>
+<div class="g"><label>วันที่<input type="date" id="hd"></label><label>ชื่อวันหยุด<input id="hn"></label></div><p><button class="s" data-a="addh">+ เพิ่มวันหยุด</button></p><div id="hl"></div></section>
+<section><h2>หมวดที่ 5 แผนการสอนและการประเมินผล</h2><h2 style="font-size:15px">5.1 แผนการสอน</h2><p class="hint">ทำตัวหนาบางข้อความ: เลือกข้อความในช่อง แล้วกดปุ่ม B ด้านบนหรือ Ctrl+B ข้อความจะมีเครื่องหมาย ** ครอบ และเป็นตัวหนาในไฟล์ Word และ PDF กดซ้ำเพื่อยกเลิก</p><p class="hint">ปรับความกว้างคอลัมน์ (ใช้กับไฟล์ Word ด้วย)</p><div class="g">${['สัปดาห์','วันที่สอน','หัวข้อ/รายละเอียด','ชั่วโมง','กิจกรรม/สื่อ','ผู้สอน'].map((n,i)=>`<label>${n} <b>${S.cw[i]}</b><input type="range" min="4" max="60" data-w="${i}" data-g value="${S.cw[i]}" style="padding:0"></label>`).join('')}</div><div class="sc"><table id="plan"></table></div>
+</section>`;
+ document.querySelectorAll('[data-k]').forEach(e=>e.value=S.f[e.dataset.k]||'');
+ plan();hl();calc()}
+function calc(){const c=S.cr,w=+c.w||0,e=document.getElementById('hrs');if(e)e.textContent=`หน่วยกิต ${c.t}(${c.l}-${c.p}-${c.s})  บรรยาย ${c.l*w} ชม./ภาค  ปฏิบัติ ${c.p*w} ชม./ภาค  ศึกษาด้วยตนเอง ${c.s*w} ชม./ภาค  ชั่วโมงสอนต่อสัปดาห์ ${perWeek()}`;
+ const p=document.getElementById('pct');if(p){const n=S.ass.reduce((a,r)=>a+(parseFloat(r.r)||0),0);p.textContent='รวม '+n+'%'}}
+function hl(){const e=document.getElementById('hl');if(!e)return;e.innerHTML=S.hc.map((h,i)=>`<span class="chip">${fd(pd(h.d))} ${esc(h.n)} <a href="#" data-a="rmh" data-i="${i}">ลบ</a></span>`).join('')+S.hx.map((h,i)=>`<span class="chip">ยกเลิกหยุด ${fd(pd(h))} <a href="#" data-a="rsh" data-i="${i}">คืนวันหยุด</a></span>`).join('')}
+function plan(){const t=document.getElementById('plan');if(!t)return;const L=flat();
+ if(!L.length){t.innerHTML='<tr><td>กรอกวันเริ่มเรียนและวันเริ่มสอบปลายภาค ตารางจะสร้างให้อัตโนมัติ</td></tr>';return}
+ t.innerHTML=cg()+'<tr><th>สัปดาห์</th><th>วันที่สอน</th><th>หัวข้อ/รายละเอียด</th><th>ชม.</th><th>กิจกรรม/สื่อ</th><th>ผู้สอน</th><th></th></tr>'+L.map(x=>{
+  if(x.t=='mid')return`<tr class="ex"><td colspan="7" style="${sty('ef','et')}">สอบกลางภาค วันที่ ${rng(S.mid1,S.mid2)}</td></tr>`;
+  if(x.t=='fin')return`<tr class="ex"><td colspan="7" style="${sty('ef','et')}">สอบปลายภาค วันที่ ${rng(S.fin1,S.fin2)}</td></tr>`;
+  const r=x.r,wk=x.ws?`<td rowspan="${x.ws.c}">${x.ws.n}</td>`:'';
+  const dt=x.j==0?`<td rowspan="${x.np}">${fd(r.d)}<br><span class="hint">${r.s.t1}-${r.s.t2}</span></td>`:'';
+  if(x.t=='hol')return`<tr class="hol">${wk}<td style="${sty('hf','ht')}">${fd(r.d)}</td><td colspan="4" style="${sty('hf','ht')}">หยุด${r.n.replace(/^หยุด/,'')}</td><td><button class="x" data-a="unh" data-k="${kd(r.d)}">ยกเลิก</button></td></tr>`;
+  const v=rd(x.p.k),b=x.j==0?`<td rowspan="${x.np}"><button class="x" data-a="tg" data-k="${r.k}" data-cur="${x.np>1?1:0}">${x.np>1?'ทั้งวัน':'แยกเช้า/บ่าย'}</button><br><button class="x" data-a="off" data-k="${kd(r.d)}">งดสอน</button></td>`:'';
+  return`<tr>${wk}${dt}<td>${x.p.lab?'<b>'+x.p.lab+'</b>':''}<textarea data-r="${x.p.k}" data-f="top">${esc(v.top)}</textarea></td>${x.j==0?`<td rowspan="${x.np}"><input type="number" step="0.5" data-r="${r.k}" data-f="h" value="${hv(r)}"></td>`:''}<td><textarea data-r="${x.p.k}" data-f="act">${esc(v.act)}</textarea></td><td><textarea data-r="${x.p.k}" data-f="ins">${esc(v.ins)}</textarea></td>${b}</tr>`}).join('');
+ tot()}
+function tot(){const e=document.getElementById('tot');if(!e)return;let n=0;flat().forEach(x=>{if(x.p&&x.j==0)n+=hv(x.r)||0});e.textContent='รวมชั่วโมงสอนตามตาราง '+Math.round(n*10)/10+' ชม.'}
+
+document.addEventListener('input',e=>{const t=e.target,d=t.dataset;if(!d)return;
+ if(d.k)S.f[d.k]=t.value;else if(d.c)S.cr[d.c]=+t.value;else if(d.d)S[d.d]=t.value;else if(d.col)S.col[d.col]=t.value;else if(d.w!==undefined){S.cw[+d.w]=+t.value;t.previousElementSibling.textContent=t.value}
+ else if(d.t){S[d.t][d.i][d.f]=t.type=='checkbox'?t.checked:t.value}else if(d.r){rd(d.r)[d.f]=t.value;if(d.f=='h')tot()}
+ save();calc();if(d.g!==undefined&&!d.r){plan()}});
+document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;e.preventDefault();const d=t.dataset,a=d.a;
+ if(a=='add'){S[d.n].push(d.n=='ses'?{d:1,t1:'09:00',t2:'12:00',room:'',h:'',sp:''}:d.n=='clo'?{c:'',m:'',a:''}:d.n=='plo'?{p:'',d:'',c:''}:{c:'',m:'',w:'',r:''})}
+ else if(a=='del'){S[d.n].splice(+d.i,1)}
+ else if(a=='addh'){const dv=document.getElementById('hd').value;if(!dv)return;S.hc.push({d:dv,n:document.getElementById('hn').value||'วันหยุดพิเศษ'})}
+ else if(a=='rmh')S.hc.splice(+d.i,1);else if(a=='rsh')S.hx.splice(+d.i,1);
+ else if(a=='tg')rd(d.k).sp=d.cur!='1';else if(a=='off')S.hc.push({d:d.k,n:'งดสอน'});
+ else if(a=='unh'){const i=S.hc.findIndex(h=>h.d==d.k);i>=0?S.hc.splice(i,1):S.hx.push(d.k)}
+ save();const y=scrollY;ui();scrollTo(0,y)});
+
+/* โครงเอกสาร ใช้ร่วมกันระหว่าง Word และ PDF */
+function blocks(){const f=S.f,c=S.cr,w=+c.w||0,b=[],H=(t,s)=>b.push({h:t,s}),P=t=>b.push({p:t||''}),T=(r,wd,ct)=>b.push({t:r,w:wd,ct});
+ b.push({h:'แผนการจัดการเรียนการสอนของรายวิชา (มคอ.3)',c:1});
+ H('หมวดที่ 5 แผนการสอนและการประเมินผล');H('5.1 แผนการสอน',1);
+ const rows=[['สัปดาห์ที่','วันที่สอน','หัวข้อ/รายละเอียด','จำนวนชั่วโมงสอน','กิจกรรมการเรียนการสอน/สื่อที่ใช้','ผู้สอน']];let n=0;
+ flat().forEach(x=>{const EX=t=>[{t,cs:6,al:1,b:1,fill:S.col.ef,color:S.col.et},{x:1},{x:1},{x:1},{x:1},{x:1}];if(x.t=='mid')return rows.push(EX('สอบกลางภาค วันที่ '+rng(S.mid1,S.mid2)));if(x.t=='fin')return rows.push(EX('สอบปลายภาค วันที่ '+rng(S.fin1,S.fin2)));
+  const wk=x.ws?{t:x.ws.n,rs:x.ws.c}:{m:1},dt=x.j==0?{t:fd(x.r.d),rs:x.np}:{m:1};
+  if(x.t=='hol')return rows.push([wk,{t:fd(x.r.d),al:1,b:1,fill:S.col.hf,color:S.col.ht},{t:'หยุด'+x.r.n.replace(/^หยุด/,''),cs:4,al:1,b:1,fill:S.col.hf,color:S.col.ht},{x:1},{x:1},{x:1}]);
+  const v=S.rows[x.p.k]||{},h=x.j==0?{t:hv(x.r),rs:x.np}:{m:1};if(x.j==0)n+=hv(x.r)||0;rows.push([wk,dt,(x.p.lab?'('+x.p.lab+') ':'')+(v.top||''),h,v.act||'',v.ins||''])});
+ T(rows,cwd(),[0,3,4,5]);P('หมายเหตุ กำหนดการอาจมีการเปลี่ยนแปลงได้ตามความเหมาะสม');
+ 
+ 
+ return b}
+
+const norm=c=>c&&typeof c=='object'?c:{t:c};
+const hx=c=>String(c||'').replace('#','').toUpperCase();
+function pvHTML(){return blocks().map(x=>x.t?`<table>${x.t.map((r,i)=>`<tr>${r.map((c,j)=>{if(c&&(c.m||c.x))return'';const o=norm(c),tg=i?'td':'th',ce=!i||o.al||(x.ct&&x.ct.includes(j));return`<${tg}${o.rs?` rowspan="${o.rs}"`:''}${o.cs?` colspan="${o.cs}"`:''} style="${ce?'text-align:center;':''}${o.b?'font-weight:600;':''}${o.fill?`background:${o.fill};`:''}${o.color?`color:${o.color};`:''}">${esc(o.t).replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}</${tg}>`}).join('')}</tr>`).join('')}</table>`:x.h!=null?`<p style="${x.c?'text-align:center;':''}font-weight:600">${esc(x.h)}</p>`:`<p>${esc(x.p).replace(/\n/g,'<br>')}</p>`).join('')}
+const xe=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const run=(t,b,col)=>`<w:r><w:rPr><w:rFonts w:ascii="TH SarabunPSK" w:hAnsi="TH SarabunPSK" w:eastAsia="TH SarabunPSK" w:cs="TH SarabunPSK"/>${b?'<w:b/><w:bCs/>':''}<w:noProof/>${col?`<w:color w:val="${hx(col)}"/>`:''}<w:sz w:val="28"/><w:szCs w:val="28"/><w:cs/><w:lang w:val="th-TH" w:eastAsia="th-TH" w:bidi="th-TH"/></w:rPr><w:t xml:space="preserve">${xe(t)}</w:t></w:r>`;
+const par=(t,b,c,col)=>`<w:p><w:pPr><w:spacing w:before="0" w:after="0"/>${c?'<w:jc w:val="center"/>':''}</w:pPr>${String(t??'').split('\n').map(l=>l.split(/\*\*/).map((g,k)=>g?run(g,b||k%2==1,col):'').join('')).join('<w:r><w:br/></w:r>')}</w:p>`;
+function docxXML(){const body=blocks().map(x=>{if(x.t){const bd=['top','left','bottom','right','insideH','insideV'].map(s=>`<w:${s} w:val="single" w:sz="4" w:color="000000"/>`).join('');
+  const rows=x.t.map((r,i)=>`<w:tr><w:trPr><w:cantSplit/>${i?'':'<w:tblHeader/>'}</w:trPr>${r.map((c,j)=>{if(c&&c.x)return'';const o=norm(c),sp=o.cs||1,w=x.w.slice(j,j+sp).reduce((a,b)=>a+b,0),ce=!i||o.al||(x.ct&&x.ct.includes(j)),fl=o.fill?hx(o.fill):'';
+   return`<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/>${sp>1?`<w:gridSpan w:val="${sp}"/>`:''}${o.m?'<w:vMerge/>':o.rs?'<w:vMerge w:val="restart"/>':''}${fl?`<w:shd w:val="clear" w:color="auto" w:fill="${fl}"/>`:''}${ce?'<w:vAlign w:val="center"/>':''}</w:tcPr>${o.m?'<w:p/>':par(o.t,!i||o.b,ce,o.color)}</w:tc>`}).join('')}</w:tr>`).join('');
+  return`<w:tbl><w:tblPr><w:tblW w:w="${x.w.reduce((a,b)=>a+b,0)}" w:type="dxa"/><w:tblBorders>${bd}</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="20" w:type="dxa"/><w:left w:w="80" w:type="dxa"/><w:bottom w:w="20" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>${x.w.map(v=>`<w:gridCol w:w="${v}"/>`).join('')}</w:tblGrid>${rows}</w:tbl><w:p/>`}
+  return x.h!=null?par(x.h,1,x.c):par(x.p)}).join('');
+ return`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr></w:body></w:document>`}
+async function toWord(){try{const dl=await claude.use('downloads');if(!dl){alert('ส่งออกไฟล์ไม่ได้ในมุมมองนี้ ให้เปิดหน้านี้ใน claude.ai');return}
+ const z=new JSZip();z.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+ z.file('_rels/.rels','<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+ z.file('word/document.xml',docxXML());const blob=await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+ await dl.save({filename:'มคอ3_'+(S.f.code||'รายวิชา').replace(/\s+/g,'_')+'.docx',data:blob})}catch(e){if(!e||e.code!='declined')alert('ส่งออก Word ไม่สำเร็จ')}}
+function toPdf(){document.getElementById('pv').innerHTML=pvHTML();try{window.print()}catch(e){alert('เบราว์เซอร์นี้พิมพ์จากหน้านี้ไม่ได้ ให้ส่งออก Word แล้วบันทึกเป็น PDF')}}
+document.getElementById('bWord').onclick=toWord;document.getElementById('bPdf').onclick=toPdf;
+function bold(){const t=document.activeElement;if(!t||t.tagName!='TEXTAREA'||!t.dataset.r)return;const a=t.selectionStart,b=t.selectionEnd;if(a==b)return;const v=t.value,sel=v.slice(a,b);let nv,s0,s1;
+ if(sel.length>4&&sel.startsWith('**')&&sel.endsWith('**')){nv=v.slice(0,a)+sel.slice(2,-2)+v.slice(b);s0=a;s1=b-4}
+ else if(v.slice(a-2,a)=='**'&&v.slice(b,b+2)=='**'){nv=v.slice(0,a-2)+sel+v.slice(b+2);s0=a-2;s1=b-2}
+ else{nv=v.slice(0,a)+'**'+sel+'**'+v.slice(b);s0=a+2;s1=b+2}
+ t.value=nv;t.setSelectionRange(s0,s1);t.dispatchEvent(new Event('input',{bubbles:true}))}
+document.getElementById('bB').onmousedown=e=>e.preventDefault();document.getElementById('bB').onclick=bold;
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()=='b'&&document.activeElement.dataset&&document.activeElement.dataset.r){e.preventDefault();bold()}});
+document.getElementById('bReset').onclick=()=>{if(confirm('ล้างข้อมูลทั้งหมด')){S=DEF();save();ui()}};
+ui();
+</script></body></html>
