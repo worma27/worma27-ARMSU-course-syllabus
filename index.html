@@ -2,13 +2,14 @@
 <html lang="th"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ระบบจัดทำ มคอ.3 (AUN-QA)</title>
-<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 :root{--bg:#f6f5f2;--card:#fff;--tx:#1c1c1a;--mu:#6b6b66;--bd:#d9d7d0;--ac:#1d5c4a;--ac2:#e3efe9;--wn:#fff4e0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171716;--card:#222221;--tx:#ecebe6;--mu:#a09f98;--bd:#3a3a37;--ac:#6fc1a5;--ac2:#25352f;--wn:#3a3222}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171716;--card:#222221;--tx:#ecebe6;--mu:#a09f98;--bd:#3a3a37;--ac:#6fc1a5;--ac2:#25352f;--wn:#3a3222;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#171716;--card:#222221;--tx:#ecebe6;--mu:#a09f98;--bd:#3a3a37;--ac:#6fc1a5;--ac2:#25352f;--wn:#3a3222;color-scheme:dark}
 *{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 'Mitr','Noto Sans Thai',sans-serif}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 'Mitr','Noto Sans Thai',sans-serif}
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 header h1{font-size:18px;margin:0 auto 0 0}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--card);z-index:10}
@@ -51,7 +52,7 @@ try{const x=localStorage.getItem('tqf3');if(x){const o=JSON.parse(x);S=Object.as
 const save=()=>{try{localStorage.setItem('tqf3',JSON.stringify(S))}catch(e){}};
 
 /* วันหยุดราชการ */
-const FX=[[1,1,'วันขึ้นปีใหม่'],[4,6,'วันจักรี'],[4,13,'วันสงกรานต์'],[4,14,'วันสงกรานต์'],[4,15,'วันสงกรานต์'],[5,1,'วันแรงงานแห่งชาติ'],[5,4,'วันฉัตรมงคล'],[6,3,'วันเฉลิมพระชนมพรรษาสมเด็จพระราชินี'],[7,28,'วันเฉลิมพระชนมพรรษา ร.10'],[8,12,'วันแม่แห่งชาติ'],[10,13,'วันคล้ายวันสวรรคต ร.9'],[10,23,'วันปิยมหาราช'],[12,5,'วันพ่อแห่งชาติ'],[12,31,'วันสิ้นปี'],[12,10,'วันรัฐธรรมนูญ']];
+const FX=[[1,1,'วันขึ้นปีใหม่'],[4,6,'วันจักรี'],[4,13,'วันสงกรานต์'],[4,14,'วันสงกรานต์'],[4,15,'วันสงกรานต์'],[5,1,'วันแรงงานแห่งชาติ'],[5,4,'วันฉัตรมงคล'],[6,3,'วันเฉลิมพระชนมพรรษาสมเด็จพระราชินี'],[7,28,'วันเฉลิมพระชนมพรรษา ร.10'],[8,12,'วันแม่แห่งชาติ'],[10,13,'วันคล้ายวันสวรรคต ร.9'],[10,23,'วันปิยมหาราช'],[12,5,'วันพ่อแห่งชาติ'],[12,10,'วันรัฐธรรมนูญ'],[12,31,'วันสิ้นปี']];
 const LU={2026:[['03-03','วันมาฆบูชา'],['05-31','วันวิสาขบูชา'],['07-29','วันอาสาฬหบูชา'],['07-30','วันเข้าพรรษา']],2027:[['02-21','วันมาฆบูชา'],['05-20','วันวิสาขบูชา'],['07-18','วันอาสาฬหบูชา'],['07-19','วันเข้าพรรษา']]};
 function holY(y,m){const L=FX.map(a=>[new Date(y,a[0]-1,a[1]),a[2]]).concat((LU[y]||[]).map(a=>[pd(y+'-'+a[0]),a[1]])).sort((a,b)=>a[0]-b[0]);
  for(const[d0,n0]of L){let d=new Date(d0),n=n0;if(d.getDay()==0||d.getDay()==6){n='หยุดชดเชย'+n;d.setDate(d.getDate()+(d.getDay()==6?2:1));while(m[kd(d)])d.setDate(d.getDate()+1)}m[kd(d)]=n}}
@@ -160,11 +161,11 @@ function docxXML(){const body=blocks().map(x=>{if(x.t){const bd=['top','left','b
   return`<w:tbl><w:tblPr><w:tblW w:w="${x.w.reduce((a,b)=>a+b,0)}" w:type="dxa"/><w:tblBorders>${bd}</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="20" w:type="dxa"/><w:left w:w="80" w:type="dxa"/><w:bottom w:w="20" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>${x.w.map(v=>`<w:gridCol w:w="${v}"/>`).join('')}</w:tblGrid>${rows}</w:tbl><w:p/>`}
   return x.h!=null?par(x.h,1,x.c):par(x.p)}).join('');
  return`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr></w:body></w:document>`}
-async function toWord(){try{const dl=await claude.use('downloads');if(!dl){alert('ส่งออกไฟล์ไม่ได้ในมุมมองนี้ ให้เปิดหน้านี้ใน claude.ai');return}
+async function toWord(){try{let dl=null;try{if(window.claude&&claude.use)dl=await claude.use('downloads')}catch(e){}
  const z=new JSZip();z.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
  z.file('_rels/.rels','<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
  z.file('word/document.xml',docxXML());const blob=await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
- await dl.save({filename:'มคอ3_'+(S.f.code||'รายวิชา').replace(/\s+/g,'_')+'.docx',data:blob})}catch(e){if(!e||e.code!='declined')alert('ส่งออก Word ไม่สำเร็จ')}}
+ const fn='มคอ3_แผนการสอน.docx';if(dl)await dl.save({filename:fn,data:blob});else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}}catch(e){if(!e||e.code!='declined')alert('ส่งออก Word ไม่สำเร็จ')}}
 function toPdf(){document.getElementById('pv').innerHTML=pvHTML();try{window.print()}catch(e){alert('เบราว์เซอร์นี้พิมพ์จากหน้านี้ไม่ได้ ให้ส่งออก Word แล้วบันทึกเป็น PDF')}}
 document.getElementById('bWord').onclick=toWord;document.getElementById('bPdf').onclick=toPdf;
 function bold(){const t=document.activeElement;if(!t||t.tagName!='TEXTAREA'||!t.dataset.r)return;const a=t.selectionStart,b=t.selectionEnd;if(a==b)return;const v=t.value,sel=v.slice(a,b);let nv,s0,s1;
